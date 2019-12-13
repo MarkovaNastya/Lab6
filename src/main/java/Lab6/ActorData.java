@@ -20,11 +20,11 @@ public class ActorData extends AbstractActor {
                         }
                 )
                 .match(
-                        Integer.class, port ->{
+                        GetRandomPort.class, port ->{
 
                             int randomIndex = new Random().nextInt(portsList.size());
 
-                            while (portsList.get(randomIndex) == port){
+                            while (portsList.get(randomIndex) == port.getPort()){
                                 randomIndex = new Random().nextInt(portsList.size());
                             }
 

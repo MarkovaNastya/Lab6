@@ -14,7 +14,7 @@ import akka.http.javadsl.server.Route;
 import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
-import org.omg.CORBA.TIMEOUT;
+
 
 import java.io.IOException;
 import java.time.Duration;
@@ -22,7 +22,7 @@ import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+
 
 import static akka.actor.TypedActor.context;
 
@@ -94,7 +94,7 @@ public class Anonimaizer extends AllDirectives {
                                 if (countInt != 0) {
                                     CompletionStage<HttpResponse> newPort = Patterns.ask(
                                             actorData,
-                                            serverPort,
+                                            new GetRandomPort(serverPort),
                                             Duration.ofMillis(5000)
                                     ).thenCompose(
                                             port ->
@@ -106,11 +106,14 @@ public class Anonimaizer extends AllDirectives {
                                     );
                                     return completeWithFuture(newPort);
                                 }
+
                                     try {
                                         return complete(fetch(url).toCompletableFuture().get());
                                     } catch (InterruptedException | ExecutionException e) {
                                         e.printStackTrace();
                                     }
+
+//                                    return complete("sa");
 
                                 }
                         )

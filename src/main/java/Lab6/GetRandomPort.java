@@ -8,5 +8,7 @@ public class GetRandomPort {
         this.port = port;
     }
 
-
+    public Integer getPort() {
+        return port;
+    }
 }
