@@ -125,6 +125,13 @@ public class Anonimaizer extends AllDirectives {
         );
 
         zoo.create(
+                "/servers",
+                "parent".getBytes(),
+                ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                CreateMode.PERSISTENT
+        );
+
+        zoo.create(
                 "/servers/" + serverPort,
                 Integer.toString(serverPort).getBytes(),
                 ZooDefs.Ids.OPEN_ACL_UNSAFE,
