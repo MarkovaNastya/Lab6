@@ -23,7 +23,7 @@ public class ActorData extends AbstractActor {
 
                             int randomIndex = new Random().nextInt(portsList.size());
 
-                            
+                            while (portsList.get(randomIndex)==msg)
 
 
                         }
