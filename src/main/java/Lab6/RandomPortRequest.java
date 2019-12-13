@@ -1,4 +1,5 @@
 package Lab6;
 
-public class RandomServerRequest {
+public class RandomPortRequest {
+
 }

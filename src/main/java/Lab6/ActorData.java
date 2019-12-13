@@ -4,6 +4,7 @@ import akka.actor.AbstractActor;
 import akka.japi.pf.ReceiveBuilder;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class ActorData extends AbstractActor {
 
@@ -18,6 +19,12 @@ public class ActorData extends AbstractActor {
                         }
                 )
                 .match(
+                        Integer.class, msg ->{
+
+                            Random random = new Random();
+                            
+
+                        }
 
 
                 )
