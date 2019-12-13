@@ -64,11 +64,14 @@ public class Anonimaizer extends AllDirectives {
         binding
                 .thenCompose(ServerBinding::unbind)
                 .thenAccept(unbound -> system.terminate());
-        System.out.println("Check git");
+
 
 
     }
 
+    CompletionStage<HttpResponse> fetchToServer(String url, int port, int count) {
+        return http.singleRequest(HttpRequest.create(url));
+    }
 
     CompletionStage<HttpResponse> fetch(String url) {
         return http.singleRequest(HttpRequest.create(url));
@@ -86,15 +89,19 @@ public class Anonimaizer extends AllDirectives {
                                     e.printStackTrace();
                                 }
                             } else {
-                                CompletionStage<Object> newPort = Patterns.ask(
+                                CompletionStage<HttpResponse> newPort = Patterns.ask(
                                         actorData,
                                         serverPort,
                                         Duration.ofMillis(5000)
+                                ).thenCompose(
+                                        port ->
+                                                fetchToServer(
+                                                        url,
+                                                        (Integer) port,
+                                                        countInt - 1
+                                                )
                                 );
-
-
-
-
+                                return completeWithFuture(newPort);
                             }
 
 
