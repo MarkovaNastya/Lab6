@@ -7,14 +7,15 @@ import java.util.ArrayList;
 
 public class ActorData extends AbstractActor {
 
-    ArrayList<Integer> portsList = new ArrayList<>();
+    private ArrayList<Integer> portsList = new ArrayList<>();
 
     @Override
     public Receive createReceive() {
         return ReceiveBuilder.create()
                 .match(
-
-
+                        GetServersList.class, msg ->{
+                            portsList = msg.getServersList();
+                        }
                 )
                 .match(
 
