@@ -19,6 +19,8 @@ import org.apache.zookeeper.*;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -75,6 +77,23 @@ public class Anonimaizer extends AllDirectives {
 
         @Override
         public void process(WatchedEvent watchedEvent) {
+            List<String> portsInfo = new ArrayList<>();
+
+            try {
+                portsInfo = zoo.getChildren(
+                        "/servers",
+                        this
+                );
+            } catch (KeeperException | InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            List<String> ports = new ArrayList<>();
+
+            for (String portInfo : portsInfo) {
+                byte[] data = new byte[0];
+                data = zoo.getData("/servers/" + serverPort, false, null);
+            }
 
         }
     }
