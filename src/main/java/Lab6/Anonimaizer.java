@@ -19,6 +19,7 @@ import org.omg.CORBA.TIMEOUT;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -48,7 +49,7 @@ public class Anonimaizer extends AllDirectives {
 
         Anonimaizer anonimaizer = new Anonimaizer();
 
-        final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = anonimaizer.routes().flow(system, materializer);
+        final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = anonimaizer.route().flow(system, materializer);
         final CompletionStage<ServerBinding> binding = http.bindAndHandle(
                 routeFlow,
                 ConnectHttp.toHost("127.0.0.1", serverPort),
@@ -77,10 +78,15 @@ public class Anonimaizer extends AllDirectives {
     }
 
     CompletionStage<HttpResponse> fetch(String url) {
-        return http.singleRequest(HttpRequest.create(url));
+        try {
+            System.out.println(url);
+            return http.singleRequest(HttpRequest.create(url));
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture(HttpResponse.create().withEntity(ERROR_404));
+        }
     }
 
-    private Route routes() {
+    private Route route() {
         return get(
                 parameter("url", url->
                         parameter("count", count-> {
@@ -102,12 +108,11 @@ public class Anonimaizer extends AllDirectives {
                                 } else {
                                     try {
                                         return complete(fetch(url).toCompletableFuture().get());
-                                    } catch (InterruptedException | ExecutionException e) {
+                                    } catch (InterruptedException e) {
                                         e.printStackTrace();
-//                                        return complete();
-//                                        return complete(ERROR_404);
+                                    } catch (ExecutionException e) {
+                                        e.printStackTrace();
                                     }
-
                                 }
                             }
                         )
