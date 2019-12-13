@@ -27,6 +27,8 @@ import static akka.actor.TypedActor.context;
 
 public class Anonimaizer extends AllDirectives {
 
+    private final static String ERROR_404 = "ERROR 404";
+
     private static Http http;
     private static int serverPort;
 
@@ -70,8 +72,8 @@ public class Anonimaizer extends AllDirectives {
     }
 
     CompletionStage<HttpResponse> fetchToServer(String url, int port, int count) {
-        String req = "http://localhost:8080/?url=http://rambler.ru&count=20";
-        return http.singleRequest(HttpRequest.create(url));
+        String req = "http://localhost:" + port + "/?url=" + url + "&count=" + count;
+        return http.singleRequest(HttpRequest.create(req));
     }
 
     CompletionStage<HttpResponse> fetch(String url) {
@@ -81,44 +83,36 @@ public class Anonimaizer extends AllDirectives {
     private Route routes() {
         return get(
                 parameter("url", url->
-                        parameter("count", count->{
-                            int countInt = Integer.parseInt(count);
-                            if (countInt==0){
-                                try {
-                                    return complete(fetch(url).toCompletableFuture().get());
-                                } catch (InterruptedException | ExecutionException e) {
-                                    e.printStackTrace();
+                        parameter("count", count-> {
+                                int countInt = Integer.parseInt(count);
+                                if (countInt != 0) {
+                                    CompletionStage<HttpResponse> newPort = Patterns.ask(
+                                            actorData,
+                                            serverPort,
+                                            Duration.ofMillis(5000)
+                                    ).thenCompose(
+                                            port ->
+                                                    fetchToServer(
+                                                            url,
+                                                            (int) port,
+                                                            countInt - 1
+                                                    )
+                                    );
+                                    return completeWithFuture(newPort);
+                                } else {
+                                    try {
+                                        return complete(fetch(url).toCompletableFuture().get());
+                                    } catch (InterruptedException | ExecutionException e) {
+                                        e.printStackTrace();
+//                                        return complete();
+//                                        return complete(ERROR_404);
+                                    }
+
                                 }
-                            } else {
-                                CompletionStage<HttpResponse> newPort = Patterns.ask(
-                                        actorData,
-                                        serverPort,
-                                        Duration.ofMillis(5000)
-                                ).thenCompose(
-                                        port ->
-                                                fetchToServer(
-                                                        url,
-                                                        (Integer) port,
-                                                        countInt - 1
-                                                )
-                                );
-                                return completeWithFuture(newPort);
                             }
-
-
-
-
-
-                        })
-
-
                         )
-
-
-
-
-
-        )
+                )
+        );
     }
 
 
