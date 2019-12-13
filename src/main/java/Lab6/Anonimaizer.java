@@ -71,6 +71,13 @@ public class Anonimaizer extends AllDirectives {
                 .thenAccept(unbound -> system.terminate());
     }
 
+    public static class ConnectWatcher implements Watcher {
+
+        @Override
+        public void process(WatchedEvent watchedEvent) {
+
+        }
+    }
 
     private static void zoo() throws IOException, KeeperException, InterruptedException {
         zoo = new ZooKeeper(
@@ -99,7 +106,7 @@ public class Anonimaizer extends AllDirectives {
 
                     }
                 }
-        )
+        );
 
 
     }
