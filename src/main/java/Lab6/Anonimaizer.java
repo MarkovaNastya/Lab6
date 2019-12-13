@@ -70,6 +70,7 @@ public class Anonimaizer extends AllDirectives {
     }
 
     CompletionStage<HttpResponse> fetchToServer(String url, int port, int count) {
+        String req = "http://localhost:8080/?url=http://rambler.ru&count=20";
         return http.singleRequest(HttpRequest.create(url));
     }
 
