@@ -1,6 +1,7 @@
 package Lab6;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.japi.pf.ReceiveBuilder;
 
 import java.util.ArrayList;
@@ -23,14 +24,12 @@ public class ActorData extends AbstractActor {
 
                             int randomIndex = new Random().nextInt(portsList.size());
 
-                            while (portsList.get(randomIndex)==port){
+                            while (Integer.portsList.get(randomIndex) == port){
                                 randomIndex = new Random().nextInt(portsList.size());
                             }
 
-
+                            getSender().tell(portsList.get(randomIndex), ActorRef.noSender());
                         }
-
-
                 )
                 .build();
     }
