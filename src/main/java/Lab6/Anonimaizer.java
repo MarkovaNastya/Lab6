@@ -64,6 +64,7 @@ public class Anonimaizer extends AllDirectives {
         binding
                 .thenCompose(ServerBinding::unbind)
                 .thenAccept(unbound -> system.terminate());
+        System.out.println("Check git");
 
 
     }
