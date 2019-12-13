@@ -17,14 +17,12 @@ import akka.stream.javadsl.Flow;
 
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
 
-import static akka.actor.TypedActor.context;
 
 public class Anonimaizer extends AllDirectives {
 
@@ -43,7 +41,7 @@ public class Anonimaizer extends AllDirectives {
         ActorSystem system = ActorSystem.create("routes");
         actorData = system.actorOf(Props.create(ActorData.class));
 
-        http = Http.get(context().system());
+        http = Http.get(system);
 
         final ActorMaterializer materializer = ActorMaterializer.create(system);
 
@@ -95,7 +93,7 @@ public class Anonimaizer extends AllDirectives {
                                     CompletionStage<HttpResponse> newPort = Patterns.ask(
                                             actorData,
                                             new GetRandomPort(serverPort),
-                                            Duration.ofMillis(5000)
+                                            java.time.Duration.ofMillis(5000)
                                     ).thenCompose(
                                             port ->
                                                     fetchToServer(
