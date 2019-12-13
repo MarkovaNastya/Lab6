@@ -92,8 +92,21 @@ public class Anonimaizer extends AllDirectives {
 
             for (String portInfo : portsInfo) {
                 byte[] data = new byte[0];
-                data = zoo.getData("/servers/" + serverPort, false, null);
+                try {
+                    data = zoo.getData("/servers/" + portInfo, false, null);
+                } catch (KeeperException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+                String portData = new String(data);
+                ports.add(portData);
             }
+
+            ArrayList<Integer> portsInt = new ArrayList<>();
+            for (String port : ports) {
+                portsInt.add(Integer.parseInt(port));
+            }
+
+            actorData.tell(new GetServersList(portsInt), ActorRef.noSender());
 
         }
     }
@@ -102,12 +115,7 @@ public class Anonimaizer extends AllDirectives {
         zoo = new ZooKeeper(
                 "127.0.0.1:2181",
                 5000,
-                new Watcher() {
-                    @Override
-                    public void process(WatchedEvent watchedEvent) {
-
-                    }
-                }
+                new ConnectWatcher()
         );
 
         zoo.create(
@@ -119,12 +127,7 @@ public class Anonimaizer extends AllDirectives {
 
         zoo.getChildren(
                 "/servers",
-                new Watcher() {
-                    @Override
-                    public void process(WatchedEvent watchedEvent) {
-
-                    }
-                }
+                new ConnectWatcher()
         );
 
 
