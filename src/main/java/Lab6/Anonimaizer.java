@@ -1,7 +1,15 @@
 package Lab6;
 
-public class Anonimaizer {
+import akka.http.javadsl.server.AllDirectives;
 
+public class Anonimaizer extends AllDirectives {
+
+
+    public static void main(String[] args) {
+        
+
+
+    }
 
 
 
