@@ -47,6 +47,12 @@ public class Anonimaizer extends AllDirectives {
         ActorSystem system = ActorSystem.create("routes");
         actorData = system.actorOf(Props.create(ActorData.class));
 
+        try {
+            zoo();
+        } catch (IOException | KeeperException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
         http = Http.get(context().system());
 
         final ActorMaterializer materializer = ActorMaterializer.create(system);
