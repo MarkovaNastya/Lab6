@@ -24,7 +24,7 @@ public class ActorData extends AbstractActor {
 
                             int randomIndex = new Random().nextInt(portsList.size());
 
-                            while (Integer.portsList.get(randomIndex) == port){
+                            while (portsList.get(randomIndex) == port){
                                 randomIndex = new Random().nextInt(portsList.size());
                             }
 
