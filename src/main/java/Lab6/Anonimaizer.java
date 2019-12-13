@@ -14,6 +14,7 @@ import akka.http.javadsl.server.Route;
 import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
+import org.apache.zookeeper.*;
 
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class Anonimaizer extends AllDirectives {
 
     private static Http http;
     private static int serverPort;
+    private static ZooKeeper zoo;
 
     private static ActorRef actorData;
 
@@ -67,7 +69,37 @@ public class Anonimaizer extends AllDirectives {
         binding
                 .thenCompose(ServerBinding::unbind)
                 .thenAccept(unbound -> system.terminate());
+    }
 
+
+    private static void zoo() throws IOException, KeeperException, InterruptedException {
+        zoo = new ZooKeeper(
+                "127.0.0.1:2181",
+                5000,
+                new Watcher() {
+                    @Override
+                    public void process(WatchedEvent watchedEvent) {
+
+                    }
+                }
+        );
+
+        zoo.create(
+                "/servers/" + serverPort,
+                Integer.toString(serverPort).getBytes(),
+                ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                CreateMode.EPHEMERAL
+        );
+
+        zoo.getChildren(
+                "/servers",
+                new Watcher() {
+                    @Override
+                    public void process(WatchedEvent watchedEvent) {
+
+                    }
+                }
+        )
 
 
     }
@@ -93,7 +125,6 @@ public class Anonimaizer extends AllDirectives {
                                         e.printStackTrace();
                                         return complete(ERROR_404);
                                     }
-
                                 } else {
                                     CompletionStage<HttpResponse> newPort = Patterns.ask(
                                             actorData,
@@ -109,10 +140,7 @@ public class Anonimaizer extends AllDirectives {
                                     );
                                     return completeWithFuture(newPort);
                                 }
-
-
-                                }
-                        )
+                        })
                 )
         );
     }
