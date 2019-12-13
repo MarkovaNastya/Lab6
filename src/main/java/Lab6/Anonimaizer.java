@@ -1,7 +1,9 @@
 package Lab6;
 
 import akka.NotUsed;
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.Props;
 import akka.http.javadsl.ConnectHttp;
 import akka.http.javadsl.Http;
 import akka.http.javadsl.ServerBinding;
@@ -9,25 +11,34 @@ import akka.http.javadsl.model.HttpRequest;
 import akka.http.javadsl.model.HttpResponse;
 import akka.http.javadsl.server.AllDirectives;
 import akka.http.javadsl.server.Route;
+import akka.pattern.Patterns;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
+import org.omg.CORBA.TIMEOUT;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Scanner;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import static akka.actor.TypedActor.context;
 
 public class Anonimaizer extends AllDirectives {
 
     private static Http http;
+    private static int serverPort;
+
+    private static ActorRef actorData;
 
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
-        int serverPort = scanner.nextInt();
+        serverPort = scanner.nextInt();
 
         ActorSystem system = ActorSystem.create("routes");
+        actorData = system.actorOf(Props.create(ActorData.class));
 
         http = Http.get(context().system());
 
@@ -63,7 +74,42 @@ public class Anonimaizer extends AllDirectives {
     }
 
     private Route routes() {
-        return null;
+        return get(
+                parameter("url", url->
+                        parameter("count", count->{
+                            int countInt = Integer.parseInt(count);
+                            if (countInt==0){
+                                try {
+                                    return complete(fetch(url).toCompletableFuture().get());
+                                } catch (InterruptedException | ExecutionException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                CompletionStage<Object> newPort = Patterns.ask(
+                                        actorData,
+                                        serverPort,
+                                        Duration.ofMillis(5000)
+                                );
+
+
+
+
+                            }
+
+
+
+
+
+                        })
+
+
+                        )
+
+
+
+
+
+        )
     }
 
 
