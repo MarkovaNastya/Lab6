@@ -21,8 +21,10 @@ public class ActorData extends AbstractActor {
                 .match(
                         Integer.class, msg ->{
 
-                            Random random = new Random();
+                            int randomIndex = new Random().nextInt(portsList.size());
+
                             
+
 
                         }
 
