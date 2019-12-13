@@ -89,7 +89,7 @@ public class Anonimaizer extends AllDirectives {
     private Route route() {
         return get(
                 parameter("url", url->
-                        parameter("count", count-> {
+                        parameter("count", count -> {
                                 int countInt = Integer.parseInt(count);
                                 if (countInt != 0) {
                                     CompletionStage<HttpResponse> newPort = Patterns.ask(
@@ -105,16 +105,14 @@ public class Anonimaizer extends AllDirectives {
                                                     )
                                     );
                                     return completeWithFuture(newPort);
-                                } else {
+                                }
                                     try {
                                         return complete(fetch(url).toCompletableFuture().get());
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    } catch (ExecutionException e) {
+                                    } catch (InterruptedException | ExecutionException e) {
                                         e.printStackTrace();
                                     }
+
                                 }
-                            }
                         )
                 )
         );
