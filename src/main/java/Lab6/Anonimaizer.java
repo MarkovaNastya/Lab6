@@ -17,12 +17,14 @@ import akka.stream.javadsl.Flow;
 
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
 
+import static akka.actor.TypedActor.context;
 
 public class Anonimaizer extends AllDirectives {
 
@@ -41,7 +43,7 @@ public class Anonimaizer extends AllDirectives {
         ActorSystem system = ActorSystem.create("routes");
         actorData = system.actorOf(Props.create(ActorData.class));
 
-        http = Http.get(system);
+        http = Http.get(context().system());
 
         final ActorMaterializer materializer = ActorMaterializer.create(system);
 
@@ -76,24 +78,27 @@ public class Anonimaizer extends AllDirectives {
     }
 
     CompletionStage<HttpResponse> fetch(String url) {
-        try {
-            System.out.println(url);
-            return http.singleRequest(HttpRequest.create(url));
-        } catch (Exception e) {
-            return CompletableFuture.completedFuture(HttpResponse.create().withEntity(ERROR_404));
-        }
+        return http.singleRequest(HttpRequest.create(url));
     }
 
     private Route route() {
         return get(
-                parameter("url", url->
+                () -> parameter("url", url->
                         parameter("count", count -> {
                                 int countInt = Integer.parseInt(count);
-                                if (countInt != 0) {
+                                if (countInt == 0) {
+                                    try {
+                                        return complete(fetch(url).toCompletableFuture().get());
+                                    } catch (InterruptedException | ExecutionException e) {
+                                        e.printStackTrace();
+                                        return complete(ERROR_404);
+                                    }
+
+                                } else {
                                     CompletionStage<HttpResponse> newPort = Patterns.ask(
                                             actorData,
-                                            new GetRandomPort(serverPort),
-                                            java.time.Duration.ofMillis(5000)
+                                            serverPort,
+                                            Duration.ofMillis(5000)
                                     ).thenCompose(
                                             port ->
                                                     fetchToServer(
@@ -105,13 +110,6 @@ public class Anonimaizer extends AllDirectives {
                                     return completeWithFuture(newPort);
                                 }
 
-                                    try {
-                                        return complete(fetch(url).toCompletableFuture().get());
-                                    } catch (InterruptedException | ExecutionException e) {
-                                        e.printStackTrace();
-                                    }
-
-//                                    return complete("sa");
 
                                 }
                         )
